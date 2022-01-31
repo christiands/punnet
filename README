@@ -12,6 +12,7 @@ Mac: Figure it out
 
 == Usage ==
 v1: Make a parent struct (or two), and put them in like the demos, ie. 'print_square(generate_square(parent1, parent2));'
+v2: In the command line, put the program name (punnet.exe or punnet), then the first parent (top row) and the second parent (left column)
 
 == To-Do ==
-v2: add argument input, error handling, and just a bit of polish (no code refactoring, it gave me a headache to write already)
+I think I'm done

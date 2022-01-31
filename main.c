@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 struct combo
 {
@@ -26,19 +27,33 @@ struct square
 };
 
 void print_square(struct square* s);
-struct square* generate_square(struct parent p1, struct parent p2);
+struct square* generate_square(struct parent* p1, struct parent* p2);
 int int_pow(int x, int y);
 
-int main()
+int main(int argc, char** argv)
 {
-	struct parent one = {.pheno = "AaBbCcDd", .length = 8}; /* Implement a method that does error handling & parent checking */
-	struct parent two = {.pheno = "AaBb", .length = 4};
-	struct parent three = {.pheno = "Aa", .length = 2};
+	struct parent* one = (struct parent*) malloc(sizeof(struct parent));
+	struct parent* two = (struct parent*) malloc(sizeof(struct parent));
 
-	struct parent pt1 = {.pheno = "AABB", .length = 4};
-	struct parent pt2 = {.pheno = "Aabb", .length = 4};
+	if(argc != 3)
+	{
+		fprintf(stderr, "Argument count is not equal to three! Actual: %d\n", argc);
+		return 1;
+	}
 
-	print_square(generate_square(pt1, pt2));
+	one->length = strlen(argv[1]);
+	two->length = strlen(argv[2]);
+
+	if(one->length != two->length)
+	{
+		fprintf(stderr, "Length of \"%s\" is not equal to length of \"%s\"! Actual: %d, %d\n", argv[1], argv[2], one->length, two->length);
+		return 1;
+	}
+
+	one->pheno = argv[1];
+	two->pheno = argv[2];
+
+	print_square(generate_square(one, two));
 
 	return 0;
 }
@@ -104,7 +119,7 @@ void print_square(struct square* s)
 	fprintf(stdout, "+\n");
 }
 
-struct square* generate_square(struct parent p1, struct parent p2)
+struct square* generate_square(struct parent* p1, struct parent* p2)
 {
 	#ifdef DEBUG
 		fprintf(stdout, "WTF\n");
@@ -115,8 +130,8 @@ struct square* generate_square(struct parent p1, struct parent p2)
 
 	/* Step 1: Combo Generation */
 	struct combo* cmp = (struct combo*) malloc(sizeof(struct combo));
-	cmp->plen = p1.length;
-	cmp->slen = p1.length / 2;
+	cmp->plen = p1->length;
+	cmp->slen = p1->length / 2;
 	cmp->clen = int_pow(2, cmp->slen);
 	cmp->dlen = cmp->clen * cmp->slen;
 	cmp->one = (char*) malloc(sizeof(char) * cmp->dlen);
@@ -147,11 +162,11 @@ struct square* generate_square(struct parent p1, struct parent p2)
 					fprintf(stdout, "%d - %d)", t, int_pow(2, j));
 				#endif
 
-				cmp->one[(i * cmp->slen) + c] = p1.pheno[(cmp->slen - j - 1) * 2 + 1];
+				cmp->one[(i * cmp->slen) + c] = p1->pheno[(cmp->slen - j - 1) * 2 + 1];
 				t = t - int_pow(2, j);
 			}
 			else
-				cmp->one[(i * cmp->slen) + c] = p1.pheno[(cmp->slen - j - 1) * 2];
+				cmp->one[(i * cmp->slen) + c] = p1->pheno[(cmp->slen - j - 1) * 2];
 			++c;
 		}
 	}
@@ -169,11 +184,11 @@ struct square* generate_square(struct parent p1, struct parent p2)
 		{
 			if(t - int_pow(2, j) >= 0)
 			{
-				cmp->two[(i * cmp->slen) + c] = p2.pheno[(cmp->slen - j - 1) * 2 + 1];
+				cmp->two[(i * cmp->slen) + c] = p2->pheno[(cmp->slen - j - 1) * 2 + 1];
 				t = t - int_pow(2, j);
 			}
 			else
-				cmp->two[(i * cmp->slen) + c] = p2.pheno[(cmp->slen - j - 1) * 2];
+				cmp->two[(i * cmp->slen) + c] = p2->pheno[(cmp->slen - j - 1) * 2];
 			++c;
 		}
 	}
