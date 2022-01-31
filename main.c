@@ -35,9 +35,10 @@ int main()
 	struct parent two = {.pheno = "AaBb", .length = 4};
 	struct parent three = {.pheno = "Aa", .length = 2};
 
-	print_square(generate_square(one, one));
-	print_square(generate_square(two, two));
-	print_square(generate_square(three, three));
+	struct parent pt1 = {.pheno = "AABB", .length = 4};
+	struct parent pt2 = {.pheno = "Aabb", .length = 4};
+
+	print_square(generate_square(pt1, pt2));
 
 	return 0;
 }
