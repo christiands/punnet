@@ -1,0 +1,14 @@
+Punnet - A Punnett Square Generator
+
+No CLI yet, because I already spent five hours making this thing work.
+
+I am aware "Punnet" is the incorrect spelling, but it stuck, because
+it reminds me of "Dunnet", the Emacs text adventure.
+
+== Running ==
+Windows: In the Developer Command Prompt for VS *year*, run 'cl main.c'
+Linux: In any shell with a C compiler, run 'cc main.c'
+Mac: Figure it out
+
+== Usage ==
+v1: Make a parent struct (or two), and put them in like the demos, ie. 'print_square(generate_square(parent1, parent2));'
