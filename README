@@ -15,4 +15,4 @@ v1: Make a parent struct (or two), and put them in like the demos, ie. 'print_sq
 v2: In the command line, put the program name (punnet.exe or punnet), then the first parent (top row) and the second parent (left column)
 
 == To-Do ==
-I think I'm done
+v3: Make odd number genes align properly when printed (parent / 2 % 2 == 1)
