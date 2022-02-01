@@ -13,6 +13,7 @@ Mac: Figure it out
 == Usage ==
 v1: Make a parent struct (or two), and put them in like the demos, ie. 'print_square(generate_square(parent1, parent2));'
 v2: In the command line, put the program name (punnet.exe or punnet), then the first parent (top row) and the second parent (left column)
+v3: Run the command with no arguments for infinite mode (enter parents separated by a space) or with two arguments for argument mode (same as v2)
 
 == To-Do ==
-v3: Make odd number genes align properly when printed (parent / 2 % 2 == 1)
+v4: Phenotypic ratios, polish

@@ -1,3 +1,5 @@
+#define MALLOC_SIZE 8
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,35 +28,75 @@ struct square
 	char* data;
 };
 
+struct split
+{
+	struct parent* one;
+	struct parent* two;
+};
+
+struct string
+{
+	char* data;
+	int point;
+	int length;
+};
+
 void print_square(struct square* s);
 struct square* generate_square(struct parent* p1, struct parent* p2);
 int int_pow(int x, int y);
+struct split* split_string(struct string* s, char c); /* Splits string at first index of c into parents */
+struct split* split_wipe(struct split* s);
+struct string* string_add(struct string* s, char c);
+struct string* string_wipe(struct string* s);
+struct string* string_alloc();
+int validate_parents(struct parent* p1, struct parent* p2);
 
 int main(int argc, char** argv)
 {
-	struct parent* one = (struct parent*) malloc(sizeof(struct parent));
-	struct parent* two = (struct parent*) malloc(sizeof(struct parent));
-
-	if(argc != 3)
+	if(argc == 1)
 	{
-		fprintf(stderr, "Argument count is not equal to three! Actual: %d\n", argc);
-		return 1;
+		struct split* tmp;
+		struct string* smp = string_alloc();
+
+		fprintf(stdout, "punnet> "); /* Initial prompt */
+
+		char c;
+		while((c = getchar()) != EOF)
+			if(c == '\n')
+			{
+				tmp = split_string(smp, ' ');
+
+				#ifdef DEBUG
+					fprintf(stdout, "%s;%d/%d;%s:%d;%s:%d\n", smp->data, smp->point, smp->length, tmp->one->pheno, tmp->one->length, tmp->two->pheno, tmp->two->length);
+				#endif
+
+				if(!validate_parents(tmp->one, tmp->two))
+					print_square(generate_square(tmp->one, tmp->two));
+			
+				fprintf(stdout, "punnet> ");
+
+				split_wipe(tmp);
+				string_wipe(smp);
+			}
+			else
+				string_add(smp, c);
 	}
-
-	one->length = strlen(argv[1]);
-	two->length = strlen(argv[2]);
-
-	if(one->length != two->length)
+	else
 	{
-		fprintf(stderr, "Length of \"%s\" is not equal to length of \"%s\"! Actual: %d, %d\n", argv[1], argv[2], one->length, two->length);
-		return 1;
+		struct parent* one = (struct parent*) malloc(sizeof(struct parent));
+		struct parent* two = (struct parent*) malloc(sizeof(struct parent));
+
+		one->length = strlen(argv[1]);
+		two->length = strlen(argv[2]);
+
+		if(validate_parents(one, two))
+			return 1;
+
+		one->pheno = argv[1];
+		two->pheno = argv[2];
+
+		print_square(generate_square(one, two));
 	}
-
-	one->pheno = argv[1];
-	two->pheno = argv[2];
-
-	print_square(generate_square(one, two));
-
 	return 0;
 }
 
@@ -74,6 +116,8 @@ void print_square(struct square* s)
 		for(int j = s->cmb->slen * i; j < (s->cmb->slen * i) + s->cmb->slen; ++j)
 			fprintf(stdout, "%c", s->cmb->one[j]);
 		for(int j = 0; j < s->cmb->slen / 2 + 1; ++j)
+			fprintf(stdout, " ");
+		if(s->cmb->slen % 2) /* Fixes header centering issue for odd number slens */
 			fprintf(stdout, " ");
 	}
 	fprintf(stdout, "\n");
@@ -237,6 +281,105 @@ int int_pow(int x, int y)
 		r = r * x;
 	
 	return r;
+}
+
+struct split* split_string(struct string* s, char c)
+{
+	struct split* tmp = (struct split*) malloc(sizeof(struct split));
+	tmp->one = (struct parent*) malloc(sizeof(struct parent));
+	tmp->two = (struct parent*) malloc(sizeof(struct parent));
+	tmp->one->pheno = (char*) malloc(sizeof(char) * s->point);
+	tmp->one->length = 0;
+	tmp->two->pheno = (char*) malloc(sizeof(char) * s->point);
+	tmp->two->length = 0;
+
+	int split = 0;
+	for(int i = 0; i < s->point; ++i)
+	{
+		if(s->data[i] == c)
+		{
+			split = 1;
+			++i;
+		}
+
+		if(split)
+			tmp->two->pheno[tmp->two->length++] = s->data[i];
+		else
+			tmp->one->pheno[tmp->one->length++] = s->data[i];
+
+		#ifdef DEBUG
+			fprintf(stdout, "%d: %c\n", i, s->data[i]);
+		#endif
+	}
+
+	return tmp;
+}
+
+struct split* split_wipe(struct split* s)
+{
+	free(s->one->pheno);
+	free(s->two->pheno);
+	free(s->one);
+	free(s->two);
+	free(s);
+
+	return s;
+}
+
+struct string* string_add(struct string* s, char c)
+{
+	if(s->point + 1 > s->length)
+	{
+		s->length = s->length + MALLOC_SIZE;
+		char* tmp = (char*) malloc(sizeof(char) * s->length);
+		memcpy(tmp, s->data, s->length - MALLOC_SIZE);
+		free(s->data);
+		s->data = tmp;
+	}
+
+	s->data[s->point++] = c;
+
+	return s;
+}
+
+struct string* string_wipe(struct string* s)
+{
+	free(s->data);
+	s->data = (char*) malloc(sizeof(char) * MALLOC_SIZE);
+	s->point = 0;
+	s->length = MALLOC_SIZE;
+
+	return s;
+}
+
+struct string* string_alloc()
+{
+	struct string* tmp = (struct string*) malloc(sizeof(struct string));
+	
+	tmp->data = (char*) malloc(sizeof(char) * MALLOC_SIZE);
+	tmp->point = 0;
+	tmp->length = MALLOC_SIZE;
+	
+	return tmp;
+}
+
+int validate_parents(struct parent* p1, struct parent* p2)
+{
+	if(p1->length % 2 || p2->length % 2) /* Not that verbose, checks if strings are odd */
+	{
+		fprintf(stderr, "ERROR: INPUT_UNEVEN_STRING: expected even length\n");
+		fprintf(stderr, "Command Syntax: punnet> [PARENT1] [PARENT2]\n");
+		return 1;
+	}
+
+	if(p1->length != p2->length)
+	{
+		fprintf(stderr, "ERROR: INPUT_MISMATCHED_STRING: length of one parent not equal to other\n");
+		fprintf(stderr, "Command Syntax: punnet> [PARENT1] [PARENT2]\n");
+		return 1;
+	}
+
+	return 0;
 }
 
 /*
